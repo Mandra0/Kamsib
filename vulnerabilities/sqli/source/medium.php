@@ -1,9 +1,11 @@
 <?php
 
+$sqliDatabase = $_DVWA['SQLI_DB'] ?? 'mysql';
+
 $number_of_rows = 0;
 try {
-	switch ($_DVWA['SQLI_DB']) {
-		case MYSQL:
+	switch ($sqliDatabase) {
+		case 'mysql':
 			$countResult = mysqli_query($GLOBALS['___mysqli_ston'], 'SELECT COUNT(*) FROM users');
 			if ($countResult === false) {
 				throw new RuntimeException('MySQL user count failed.');
@@ -12,7 +14,7 @@ try {
 			$countResult->free();
 			break;
 
-		case SQLITE:
+		case 'sqlite':
 			global $sqlite_db_connection;
 			$count = $sqlite_db_connection->querySingle('SELECT COUNT(*) FROM users');
 			if ($count === false) {
@@ -41,7 +43,7 @@ if (!is_string($rawId)) {
 }
 
 try {
-	if ($_DVWA['SQLI_DB'] === MYSQL) {
+	if ($sqliDatabase === 'mysql') {
 		// Supplementary escaping; validation and parameter binding enforce safety.
 		$rawId = mysqli_real_escape_string($GLOBALS['___mysqli_ston'], $rawId);
 	}
@@ -64,8 +66,8 @@ $stmt = null;
 $result = null;
 
 try {
-	switch ($_DVWA['SQLI_DB']) {
-		case MYSQL:
+	switch ($sqliDatabase) {
+		case 'mysql':
 			$stmt = mysqli_prepare($GLOBALS['___mysqli_ston'], $query);
 			if (
 				!$stmt || !mysqli_stmt_bind_param($stmt, 'i', $id)
@@ -80,7 +82,7 @@ try {
 			$row = mysqli_fetch_assoc($result);
 			break;
 
-		case SQLITE:
+		case 'sqlite':
 			global $sqlite_db_connection;
 			$stmt = $sqlite_db_connection->prepare($query);
 			if (!$stmt || !$stmt->bindValue(1, $id, SQLITE3_INTEGER)) {
